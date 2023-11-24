@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+option go_package = "/internal/services/pb";
+
+package user;
+
+
+service ProfileService {
+  rpc SignUp(SignupRequestMessage) returns (SignupResponseMessage){};
+  rpc Login(LoginRequestMessage) returns (LoginResponseMessage){};
+
+  rpc CreateUser(CreateUserReq) returns (User){};
+  rpc GetUsers(Empty) returns (GetUsersResp){};
+  rpc GetUserById(GetUserRequest) returns (User){};
+  rpc UpdateUser(GetByIdRequest) returns (User){};
+  rpc DeleteUser(DeleteUserRequest) returns (User){};
+}
+
+message SignupRequestMessage{
+  string username=1;
+  string email=2;
+  string password=3;
+}
+
+message SignupResponseMessage{
+  User user=1;
+}
+
+message LoginRequestMessage{
+  string username=1;
+  string password=2;
+}
+
+message LoginResponseMessage{
+  User user=1;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string username = 3;
+  string password = 4;
+  bool admin = 5;
+}
+
+message CreateUserReq {
+  string email = 2;
+  string username = 3;
+  string password = 4;
+  bool admin = 5;
+}
+
+message Empty {}
+
+message GetUsersResp {
+  repeated User users = 1;
+}
+
+message GetUserRequest { string id = 1; }
+
+message GetByIdRequest { 
+  string id = 1;
+  string email = 2;
+  string username = 3;
+  string password = 4;
+  bool admin = 5;
+}
+
+message DeleteUserRequest { string id = 1; }
+
+message DeleteUserResp { string id = 1; }
