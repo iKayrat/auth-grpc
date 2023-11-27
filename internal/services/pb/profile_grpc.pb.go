@@ -28,7 +28,7 @@ type ProfileServiceClient interface {
 	GetUsers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetUsersResp, error)
 	GetUserById(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
 	UpdateUser(ctx context.Context, in *GetByIdRequest, opts ...grpc.CallOption) (*User, error)
-	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*User, error)
+	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*ResponseMsg, error)
 }
 
 type profileServiceClient struct {
@@ -93,8 +93,8 @@ func (c *profileServiceClient) UpdateUser(ctx context.Context, in *GetByIdReques
 	return out, nil
 }
 
-func (c *profileServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*User, error) {
-	out := new(User)
+func (c *profileServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*ResponseMsg, error) {
+	out := new(ResponseMsg)
 	err := c.cc.Invoke(ctx, "/user.ProfileService/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ type ProfileServiceServer interface {
 	GetUsers(context.Context, *Empty) (*GetUsersResp, error)
 	GetUserById(context.Context, *GetUserRequest) (*User, error)
 	UpdateUser(context.Context, *GetByIdRequest) (*User, error)
-	DeleteUser(context.Context, *DeleteUserRequest) (*User, error)
+	DeleteUser(context.Context, *DeleteUserRequest) (*ResponseMsg, error)
 	mustEmbedUnimplementedProfileServiceServer()
 }
 
@@ -138,7 +138,7 @@ func (UnimplementedProfileServiceServer) GetUserById(context.Context, *GetUserRe
 func (UnimplementedProfileServiceServer) UpdateUser(context.Context, *GetByIdRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
-func (UnimplementedProfileServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*User, error) {
+func (UnimplementedProfileServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*ResponseMsg, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (UnimplementedProfileServiceServer) mustEmbedUnimplementedProfileServiceServer() {}

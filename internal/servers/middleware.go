@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"strings"
 
 	"google.golang.org/grpc"
@@ -64,11 +63,8 @@ func (server *Server) AuthInterceptor(ctx context.Context, req interface{}, info
 		}
 	}()
 
-	log.Println("*info.FullMethod:", info.FullMethod)
 	// return handler(ctx, req)
 	if methodRequiresAuthentication(info.FullMethod) {
-		log.Println("*info.FullMethod:", info.FullMethod)
-
 		auth, err := extractHeader(ctx, authorizationHeader)
 		if err != nil {
 			return ctx, err

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/iKayrat/auth-grpc/internal/model"
@@ -59,10 +58,6 @@ func (server *Server) GetUserById(ctx context.Context, req *pb.GetUserRequest) (
 		return nil, errors.New("user not exists")
 	}
 
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.Internal, err.Error())
-	// }
-
 	idd := user.ID.String()
 
 	resp := &pb.User{
@@ -79,43 +74,68 @@ func (server *Server) GetUserById(ctx context.Context, req *pb.GetUserRequest) (
 
 func (server *Server) GetUsers(ctx context.Context, req *pb.Empty) (*pb.GetUsersResp, error) {
 
-	users := server.Store.GetAll(ctx)
+	users, err := server.Store.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	// resp := pb.GetUsersResp{
-	// 	Users: make([]*pb.User, len(users)),
-	// }
 	resp := new(pb.GetUsersResp)
-
-	log.Println("resp:", resp)
-	log.Println("users:", len(users))
-	log.Println(len(resp.Users))
-
-	pbUsers := make([]*pb.User, len(users))
-	log.Printf("resp:%#v\n", pbUsers)
-	log.Printf("resp:%#v\n", users)
 
 	for i := 0; i < len(users); i++ {
 
 		idd := users[i].ID.String()
 
-		pbUsers[i].Id = idd
-		pbUsers[i].Username = users[i].Username
-		pbUsers[i].Email = users[i].Email
-		pbUsers[i].Password = users[i].Password
-		pbUsers[i].Admin = users[i].Admin
+		resp.Users = append(resp.Users, &pb.User{
+			Id:       idd,
+			Email:    users[i].Email,
+			Username: users[i].Username,
+			Password: users[i].Password,
+		})
 	}
-	log.Println("resp:", resp)
 
-	resp.Users = append(resp.Users, pbUsers...)
+	return resp, nil
+}
 
-	// for i := 0; i < len(users); i++ {
+func (server *Server) UpdateUser(ctx context.Context, in *pb.GetByIdRequest) (*pb.User, error) {
 
-	// 	resp.Users[i].Id = pbUsers[i].Id
-	// 	resp.Users[i].Username = pbUsers[i].Username
-	// 	resp.Users[i].Email = pbUsers[i].Email
-	// 	resp.Users[i].Password = pbUsers[i].Password
-	// 	resp.Users[i].Admin = pbUsers[i].Admin
-	// }
+	id, err := uuid.Parse(in.Id)
+	if err != nil {
+		return nil, err
+	}
+	var u model.User = model.User{
+		ID:       id,
+		Email:    in.Email,
+		Username: in.Username,
+		Password: in.Password,
+		Admin:    in.Admin,
+	}
+
+	updatedUser, err := server.Store.Update(ctx, u)
+	if err != nil {
+		return nil, errors.New("user not exists")
+	}
+
+	resp := &pb.User{
+		Id:       updatedUser.ID.String(),
+		Email:    updatedUser.Email,
+		Username: updatedUser.Username,
+		Password: updatedUser.Password,
+		Admin:    updatedUser.Admin,
+	}
+
+	return resp, nil
+
+}
+func (server *Server) DeleteUser(ctx context.Context, in *pb.DeleteUserRequest) (*pb.ResponseMsg, error) {
+	err := server.Store.Delete(ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	msg := fmt.Sprintf("User with (%s) ID deleted", in.Id)
+
+	resp := new(pb.ResponseMsg)
+	resp.Msg = msg
 
 	return resp, nil
 }

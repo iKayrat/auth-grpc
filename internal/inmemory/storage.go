@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sort"
 	"sync"
 
 	"github.com/google/uuid"
@@ -22,35 +23,42 @@ func New() Store {
 	}
 }
 
+// NewUS returns pointer to UserStorage
 func NewUS() *UserStorage {
 	return &UserStorage{
-		Users: make(map[string]model.User),
+		Users: make(map[string]model.User, 0),
 	}
 }
 
 func InitStorage() *UserStorage {
 	storage := NewUS()
 
+	storage.mu.Lock()
+	defer storage.mu.Unlock()
+
 	adminUUID, _ := uuid.Parse("e257152c-43e2-4fe2-8cd3-0618006890c5")
+
+	uid1, _ := uuid.Parse("1c539b0a-7d71-418b-9136-dbcbccd7908b")
+	uid2 := uuid.New()
 
 	// initial users
 	initialUsers := []model.User{
 		{
 			ID:       adminUUID,
 			Email:    "admin@admin",
-			Username: "admin",
-			Password: "admin",
+			Username: "a",
+			Password: "12",
 			Admin:    true,
 		},
 		{
-			ID:       uuid.New(),
+			ID:       uid1,
 			Email:    "a@yandex.ru",
 			Username: "Alisa",
 			Password: "yandex123",
 			Admin:    false,
 		},
 		{
-			ID:       uuid.New(),
+			ID:       uid2,
 			Email:    "m@mail.ru",
 			Username: "Marusya",
 			Password: "vcontact21",
@@ -58,8 +66,6 @@ func InitStorage() *UserStorage {
 		},
 	}
 
-	storage.mu.Lock()
-	defer storage.mu.Unlock()
 	for _, user := range initialUsers {
 		id := user.ID.String()
 		storage.Users[id] = user
@@ -85,16 +91,24 @@ func (us *UserStorage) Create(ctx context.Context, user model.User) (model.User,
 	return us.Users[idd], nil
 }
 
-func (us *UserStorage) GetAll(ctx context.Context) []model.User {
+func (us *UserStorage) GetAll(ctx context.Context) ([]model.User, error) {
 	us.mu.RLock()
 	defer us.mu.RUnlock()
+	if len(us.Users) == 0 {
+		return nil, errors.New(UserNotFound)
+	}
 
-	users := make([]model.User, len(us.Users))
+	users := make([]model.User, 0)
 	for _, u := range us.Users {
 		users = append(users, u)
 	}
 
-	return users
+	//sort slice
+	sort.Slice(users, func(i, j int) bool {
+		return users[i].ID.ID() < users[j].ID.ID()
+	})
+
+	return users, nil
 }
 
 func (us *UserStorage) GetById(ctx context.Context, id uuid.UUID) (model.User, bool) {
@@ -116,7 +130,7 @@ func (us *UserStorage) GetByUsername(ctx context.Context, username string) (mode
 		}
 	}
 
-	return model.User{}, errors.New("user not found")
+	return model.User{}, errors.New(UserNotFound)
 }
 
 func (us *UserStorage) Update(ctx context.Context, updateUser model.User) (model.User, error) {
@@ -134,14 +148,16 @@ func (us *UserStorage) Update(ctx context.Context, updateUser model.User) (model
 	return us.Users[updateUser.ID.String()], nil
 }
 
-func (us *UserStorage) Delete(ctx context.Context, id uuid.UUID) error {
+func (us *UserStorage) Delete(ctx context.Context, id string) error {
 	us.mu.Lock()
 	defer us.mu.Unlock()
 
-	_, exists := us.Users[id.String()]
+	_, exists := us.Users[id]
 	if !exists {
-		return fmt.Errorf("user with ID %s not found", id.String())
+		return fmt.Errorf(UserWithIdNotFound, id)
 	}
+
+	delete(us.Users, id)
 
 	return nil
 }
