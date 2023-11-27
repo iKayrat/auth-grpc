@@ -13,7 +13,7 @@ service ProfileService {
   rpc GetUsers(Empty) returns (GetUsersResp){};
   rpc GetUserById(GetUserRequest) returns (User){};
   rpc UpdateUser(GetByIdRequest) returns (User){};
-  rpc DeleteUser(DeleteUserRequest) returns (User){};
+  rpc DeleteUser(DeleteUserRequest) returns (ResponseMsg){};
 }
 
 message SignupRequestMessage{
@@ -51,6 +51,9 @@ message CreateUserReq {
 }
 
 message Empty {}
+message ResponseMsg {
+  string msg = 1;
+}
 
 message GetUsersResp {
   repeated User users = 1;
