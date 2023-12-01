@@ -100,7 +100,11 @@ func (us *UserStorage) GetAll(ctx context.Context) ([]model.User, error) {
 
 	users := make([]model.User, 0)
 	for _, u := range us.Users {
-		users = append(users, u)
+		users = append(users, model.User{
+			ID:       u.ID,
+			Email:    u.Email,
+			Username: u.Username,
+		})
 	}
 
 	//sort slice

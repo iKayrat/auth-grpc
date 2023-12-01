@@ -21,42 +21,7 @@ const (
 )
 
 func (server *Server) AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-
-	// Extract the metadata from the context.
-	// md, ok := metadata.FromIncomingContext(ctx)
-	// if !ok {
-	// 	return nil, status.Errorf(codes.InvalidArgument, "metadata not found")
-	// }
-	// fmt.Println("***md:", md)
-
-	// // Get the authorization token from metadata.
-	// authTokens := md[authorizationHeader]
-	// if len(authTokens) == 0 {
-	// 	return nil, status.Errorf(codes.Unauthenticated, "authorization token is missing")
-	// }
-
-	// authTokenB := md["g-auth"]
-	// if len(authTokenB) == 0 {
-	// 	return nil, status.Errorf(codes.Unauthenticated, "authorization token is missing")
-	// }
-	// fmt.Println("**AuthB:", authTokenB)
-
-	// authHeader := authTokens[0] // Assuming a single token is sent in the header.
-	// fmt.Println("authTokens:", authTokens)
-	// fields := strings.Fields(authHeader)
-
-	// if len(fields) < 2 {
-	// 	return nil, status.Errorf(codes.Unauthenticated, "invalid auth header format: %v", fields)
-	// }
-
-	// authType := strings.ToLower(fields[0])
-	// if authType != authorizationBearer {
-	// 	return nil, status.Errorf(codes.Unauthenticated, "invalid authorization type: %v", authType)
-	// }
-
-	// accessToken := fields[1]
-	// fmt.Println("***accesstoken:", accessToken)
-
+	
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("recover:", err)

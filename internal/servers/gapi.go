@@ -8,9 +8,6 @@ import (
 type Server struct {
 	pb.ProfileServiceServer
 	Store storage.Store
-
-	// authService services.AuthService
-	// userService services.UserService
 }
 
 func NewGrpcServer(store storage.Store) (*Server, error) {
