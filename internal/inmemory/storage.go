@@ -17,7 +17,7 @@ type UserStorage struct {
 	mu    sync.RWMutex
 }
 
-func New() Store {
+func New(us *UserStorage) Store {
 	return &UserStorage{
 		Users: make(map[string]model.User),
 	}

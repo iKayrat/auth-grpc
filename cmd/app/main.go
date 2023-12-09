@@ -21,9 +21,10 @@ func main() {
 	}
 
 	Userstorage := storage.InitStorage()
-	var store storage.Store = Userstorage
+	// var store storage.Store = Userstorage
+	store := storage.New(Userstorage)
 
-	server, err := gapi.NewGrpcServer(store)
+	server, err := gapi.NewGrpcServer(&store)
 	if err != nil {
 		log.Fatal("Error creating server", err)
 	}

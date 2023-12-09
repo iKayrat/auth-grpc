@@ -10,9 +10,9 @@ type Server struct {
 	Store storage.Store
 }
 
-func NewGrpcServer(store storage.Store) (*Server, error) {
+func NewGrpcServer(store *storage.Store) (*Server, error) {
 	server := &Server{
-		Store: store,
+		Store: *store,
 	}
 
 	return server, nil

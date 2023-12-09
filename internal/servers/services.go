@@ -16,6 +16,7 @@ func methodRequiresAuthentication(fullMethod string) bool {
 		"login",
 		"signup",
 		"getusers",
+		"createuser",
 	}
 
 	// Check if the requested method is in the list.
